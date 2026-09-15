@@ -24,7 +24,7 @@ let isMyTurn = false;
 const COLOR_NAMES = ['red', 'green', 'yellow', 'blue'];
 
 // ═══════════════════════════════════════════════════════════════
-// GÉOMÉTRIE DU PLATEAU (Ajustée aux couleurs & directions Ludo)
+// GÉOMÉTRIE DU PLATEAU
 // ═══════════════════════════════════════════════════════════════
 
 function buildRing() {
@@ -47,21 +47,20 @@ function buildRing() {
 const RING = buildRing();
 const RING_LENGTH = RING.length; // 52
 
-// 0: Rouge (Rouge part à [6,1]) | 1: Vert ([1,8]) | 2: Jaune ([8,13]) | 3: Bleu ([13,6])
 const START_OFFSET = [1, 14, 27, 40];
 
 const HOME_COLUMN = [
-    [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5], [7, 6]],     // Rouge (Gauche -> Centre)
-    [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7], [6, 7]],     // Vert (Haut -> Centre)
-    [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9], [7, 8]], // Jaune (Droite -> Centre)
-    [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7], [8, 7]]  // Bleu (Bas -> Centre)
+    [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5], [7, 6]],     // Rouge
+    [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7], [6, 7]],     // Vert
+    [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9], [7, 8]], // Jaune
+    [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7], [8, 7]]  // Bleu
 ];
 
 const YARD_SLOTS = [
-    [[1, 1], [1, 4], [4, 1], [4, 4]],       // Rouge (Haut-Gauche)
-    [[1, 10], [1, 13], [4, 10], [4, 13]],   // Vert (Haut-Droite)
-    [[10, 10], [10, 13], [13, 10], [13, 13]], // Jaune (Bas-Droite)
-    [[10, 1], [10, 4], [13, 1], [13, 4]]     // Bleu (Bas-Gauche)
+    [[1, 1], [1, 4], [4, 1], [4, 4]],       // Rouge
+    [[1, 10], [1, 13], [4, 10], [4, 13]],   // Vert
+    [[10, 10], [10, 13], [13, 10], [13, 13]], // Jaune
+    [[10, 1], [10, 4], [13, 1], [13, 4]]     // Bleu
 ];
 
 const STEPS_TO_HOME_ENTRY = 51;
@@ -132,7 +131,7 @@ socket.on('error', (msg) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// ACTIONS UTILISATEUR
+// ACTIONS UTILISATEUR (CORRIGÉES)
 // ═══════════════════════════════════════════════════════════════
 
 createBtn.addEventListener('click', () => {
@@ -161,17 +160,22 @@ rollBtn.addEventListener('click', () => {
     rollBtn.disabled = true;
 });
 
+// GESTION CORRIGÉE DES CLICS SUR LES PIONS
 board.addEventListener('click', (e) => {
-    const cell = e.target.closest('.cell');
-    if (!cell) return;
-    const pionIdx = parseInt(cell.dataset.pionIndex, 10);
+    const pionEl = e.target.closest('.pion');
+    if (!pionEl) return;
+
+    const pionIdx = parseInt(pionEl.dataset.pionIndex, 10);
     if (isNaN(pionIdx)) return;
+
     if (!isMyTurn) { showNotif('❌ Ce n\'est pas votre tour', 'error'); return; }
+    if (!gameState.diceRolled) { showNotif('❌ Lancez d\'abord le dé', 'error'); return; }
+
     socket.emit('movePion', { gameId: currentGameId, pionIndex: pionIdx });
 });
 
 // ═══════════════════════════════════════════════════════════════
-// RENDU DU PLATEAU
+// RENDU DU PLATEAU (CORRIGÉ)
 // ═══════════════════════════════════════════════════════════════
 
 function updateUI() {
@@ -271,18 +275,20 @@ function renderBoard() {
                 pionDiv.classList.add('multiple');
                 cellEl.querySelectorAll('.pion').forEach(el => el.classList.add('multiple'));
             }
-            cellEl.appendChild(pionDiv);
 
-            // Rendre cliquable si jouable
+            // Rendre le pion cliquable s'il peut être joué
             if (p === currentPlayerId && steps !== STEPS_TOTAL) {
                 const movable = (gameState.movablePions || []).some(
                     m => m.player === p && m.pionIndex === j
                 );
                 if (movable) {
-                    cellEl.dataset.pionIndex = j;
+                    pionDiv.dataset.pionIndex = j;
+                    pionDiv.classList.add('movable');
                     cellEl.classList.add('has-pion');
                 }
             }
+
+            cellEl.appendChild(pionDiv);
         }
     }
 }

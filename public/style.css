@@ -236,3 +236,9 @@ body {
     .game-controls { flex-direction: column; }
     .dice-area { width: 100%; justify-content: center; }
 }
+
+.pion.movable {
+    cursor: pointer;
+    animation: pulse 1s infinite alternate;
+    box-shadow: 0 0 10px #fff;
+}

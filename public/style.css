@@ -1,255 +1,152 @@
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: radial-gradient(circle at center, #1b1e36 0%, #0d0f1d 100%);
-    min-height: 100vh;
+    background-color: #0f172a;
+    color: #f8fafc;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    color: #f8fafc;
+    min-height: 100vh;
 }
 
-.screen { display: none; width: 100%; max-width: 760px; }
-.screen.active { display: block; }
-
-/* Écran de Configuration */
-.setup-container {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(24px);
-    border-radius: 28px;
-    padding: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
-    text-align: center;
-}
-.setup-container h1 { font-size: 3.5rem; letter-spacing: 2px; text-shadow: 0 0 30px rgba(241, 196, 15, 0.4); }
-.subtitle { color: #94a3b8; margin-bottom: 28px; font-size: 1rem; }
-.setup-box { background: rgba(0, 0, 0, 0.25); border-radius: 20px; padding: 28px; border: 1px solid rgba(255, 255, 255, 0.05); }
-.form-group { margin-bottom: 18px; }
-.form-group label { display: block; margin-bottom: 8px; color: #cbd5e1; font-size: 0.9rem; font-weight: 600; }
-.form-group input, .form-group select {
-    width: 100%; padding: 14px 16px; border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px; background: rgba(15, 23, 42, 0.6); color: #fff;
-    font-size: 0.95rem; transition: all 0.2s;
-}
-.form-group input:focus, .form-group select:focus { outline: none; border-color: #f1c40f; box-shadow: 0 0 12px rgba(241, 196, 15, 0.3); }
-.form-group select option { background: #0f172a; }
-
-.btn-primary {
-    width: 100%; padding: 15px; background: linear-gradient(135deg, #f59e0b, #d97706);
-    border: none; border-radius: 14px; color: #fff; font-size: 1.05rem;
-    font-weight: 700; cursor: pointer; transition: all 0.2s ease;
-    box-shadow: 0 8px 20px rgba(217, 119, 6, 0.3);
-}
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(217, 119, 6, 0.5); }
-.divider { text-align: center; color: #64748b; padding: 16px 0; font-size: 0.85rem; }
-.join-section { display: flex; gap: 12px; }
-.join-section input {
-    flex: 1; padding: 14px 16px; border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px; background: rgba(15, 23, 42, 0.6); color: #fff;
-}
-.btn-secondary {
-    padding: 14px 24px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 12px; color: #fff; font-weight: 600; cursor: pointer; transition: all 0.2s;
-}
-.btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
-
-/* Interface de Jeu */
-.game-container {
-    background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border-radius: 28px;
-    padding: 24px; border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-}
-.game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.game-header h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: 1px; }
-.game-id { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; color: #94a3b8; }
-
-/* Barre des Joueurs */
-.players-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-.player-tag {
-    background: rgba(15, 23, 42, 0.6); padding: 10px 14px; border-radius: 14px; display: flex;
-    align-items: center; gap: 10px; border: 2px solid transparent; transition: all 0.3s; font-size: 0.85rem;
-}
-.player-tag.active { border-color: #f1c40f; background: rgba(241, 196, 15, 0.12); box-shadow: 0 0 15px rgba(241, 196, 15, 0.2); }
-.player-tag.finished { opacity: 0.4; }
-.color-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px currentColor; }
-.pname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
-
-/* Plateau de Jeu */
-.board-wrapper { 
-    background: #0f172a; 
-    border-radius: 20px; 
-    padding: 12px; 
-    margin-bottom: 20px; 
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: inset 0 4px 20px rgba(0,0,0,0.8), 0 10px 25px rgba(0,0,0,0.5);
+.screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
 }
 
-.board { 
-    display: grid; 
-    grid-template-columns: repeat(15, 1fr); 
+.screen.active {
+    display: flex;
+}
+
+/* Plateau en grille 15x15 */
+#board {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
     grid-template-rows: repeat(15, 1fr);
-    gap: 0;
-    aspect-ratio: 1; 
-    background-color: #020617;
-    border-radius: 12px;
-    overflow: hidden;
+    width: 480px;
+    height: 480px;
+    background-color: #ffffff;
+    border: 4px solid #1e293b;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    transition: transform 0.5s ease-in-out;
 }
 
-/* Structure de base des cases */
+/* Rotations du plateau selon le joueur */
+#board.rotate-red { transform: rotate(0deg); }
+#board.rotate-green { transform: rotate(-90deg); }
+#board.rotate-yellow { transform: rotate(180deg); }
+#board.rotate-blue { transform: rotate(90deg); }
+
+/* Inversion sur les pions pour qu'ils restent droits */
+#board.rotate-green .pion { transform: rotate(90deg); }
+#board.rotate-yellow .pion { transform: rotate(-180deg); }
+#board.rotate-blue .pion { transform: rotate(-90deg); }
+
 .cell {
-    background: #1e293b; 
-    border-radius: 0; 
-    aspect-ratio: 1;
-    display: flex; 
-    flex-wrap: wrap; 
-    align-items: center; 
+    border: 1px solid #e2e8f0;
+    position: relative;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    position: relative; 
-    transition: transform 0.2s, background-color 0.2s;
 }
 
-/* Maisons unies (sans quadrillage) */
-.cell.home-red { background: #ef4444; outline: none; border: none; }
-.cell.home-green { background: #22c55e; outline: none; border: none; }
-.cell.home-yellow { background: #eab308; outline: none; border: none; }
-.cell.home-blue { background: #3b82f6; outline: none; border: none; }
+/* Écuries */
+.cell.home-red { background-color: #ef4444; border: none; }
+.cell.home-green { background-color: #10b981; border: none; }
+.cell.home-yellow { background-color: #eab308; border: none; }
+.cell.home-blue { background-color: #3b82f6; border: none; }
 
-/* -------------------------------------------------------------
-   PISTE DE CIRCULATION EN BLANC
-   ------------------------------------------------------------- */
-.cell.path {
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.08);
-}
+/* Chemins d'arrivée */
+.cell.stretch-red { background-color: #fca5a5; }
+.cell.stretch-green { background-color: #6ee7b7; }
+.cell.stretch-yellow { background-color: #fde047; }
+.cell.stretch-blue { background-color: #93c5fd; }
 
-/* Colonnes d'arrivée */
-.cell.stretch-red { background: linear-gradient(135deg, #ef4444, #dc2626); border: 1px solid rgba(0, 0, 0, 0.15); }
-.cell.stretch-green { background: linear-gradient(135deg, #22c55e, #16a34a); border: 1px solid rgba(0, 0, 0, 0.15); }
-.cell.stretch-yellow { background: linear-gradient(135deg, #eab308, #ca8a04); border: 1px solid rgba(0, 0, 0, 0.15); }
-.cell.stretch-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); border: 1px solid rgba(0, 0, 0, 0.15); }
+/* Centre */
+.cell.center-mid { background-color: #334155; }
+.cell.center-top { background-color: #10b981; }
+.cell.center-bottom { background-color: #3b82f6; }
+.cell.center-left { background-color: #ef4444; }
+.cell.center-right { background-color: #eab308; }
 
-/* Cases de départ */
-.cell.start-red { background: #ef4444; outline: 2px solid #ffffff; z-index: 2; border: 1px solid rgba(0, 0, 0, 0.2); }
-.cell.start-green { background: #22c55e; outline: 2px solid #ffffff; z-index: 2; border: 1px solid rgba(0, 0, 0, 0.2); }
-.cell.start-yellow { background: #eab308; outline: 2px solid #ffffff; z-index: 2; border: 1px solid rgba(0, 0, 0, 0.2); }
-.cell.start-blue { background: #3b82f6; outline: 2px solid #ffffff; z-index: 2; border: 1px solid rgba(0, 0, 0, 0.2); }
-
-/* Centre du plateau */
-.cell.center-mid { background: radial-gradient(circle, #ffffff 0%, #fbbf24 60%, #d97706 100%); box-shadow: 0 0 15px rgba(251, 191, 36, 0.6); z-index: 3; }
-.cell.center-top { background: #22c55e; }
-.cell.center-bottom { background: #3b82f6; }
-.cell.center-left { background: #ef4444; }
-.cell.center-right { background: #eab308; }
-
-/* Socles circulaires pour les pions dans les maisons */
-.cell.home-red:has(.pion),
-.cell.home-green:has(.pion),
-.cell.home-yellow:has(.pion),
-.cell.home-blue:has(.pion) {
-    background-color: rgba(0, 0, 0, 0.3) !important;
-    border-radius: 50%;
-    transform: scale(0.85);
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
-}
-
-/* Icône Étoile / Sécurité (en sombre pour bien ressortir sur fond blanc) */
-.cell.safe::before {
-    content: '★'; 
-    position: absolute; 
-    font-size: 0.85rem; 
-    color: #475569;
-    pointer-events: none;
-}
-
-.cell.has-pion { cursor: pointer; }
-.cell.has-pion:hover { transform: scale(1.15); z-index: 10; filter: brightness(1.1); }
-
-/* Pions 3D */
+/* Pions */
 .pion {
-    width: 75%; height: 75%; border-radius: 50%;
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: inset 0 -3px 4px rgba(0,0,0,0.4), inset 0 3px 4px rgba(255,255,255,0.4), 0 4px 8px rgba(0,0,0,0.4);
-    margin: 1px; position: relative;
-}
-.pion.multiple { width: 42%; height: 42%; }
-
-.pion-red { background: radial-gradient(circle at 35% 35%, #fca5a5, #ef4444 60%, #991b1b); }
-.pion-green { background: radial-gradient(circle at 35% 35%, #86efac, #22c55e 60%, #166534); }
-.pion-yellow { background: radial-gradient(circle at 35% 35%, #fde047, #eab308 60%, #854d0e); }
-.pion-blue { background: radial-gradient(circle at 35% 35%, #93c5fd, #3b82f6 60%, #1e40af); }
-
-/* Dé et Contrôles */
-.game-controls { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 10px; }
-.dice-area { display: flex; align-items: center; gap: 14px; }
-.dice {
-    width: 60px; height: 60px; background: linear-gradient(145deg, #ffffff, #e2e8f0);
-    border-radius: 16px; display: flex; align-items: center; justify-content: center;
-    font-size: 2.2rem; box-shadow: 0 8px 20px rgba(0,0,0,0.4), inset 0 2px 2px #fff;
-    transition: transform 0.3s; color: #0f172a;
-}
-.dice.rolling { animation: diceRoll 0.5s ease-in-out; }
-@keyframes diceRoll {
-    0% { transform: rotate(0deg) scale(1); }
-    50% { transform: rotate(180deg) scale(1.15); }
-    100% { transform: rotate(360deg) scale(1); }
+    width: 75%;
+    height: 75%;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    z-index: 10;
+    transition: all 0.2s ease;
 }
 
-.btn-roll {
-    padding: 14px 28px; background: linear-gradient(135deg, #6366f1, #4f46e5); border: none;
-    border-radius: 14px; color: white; font-weight: 700; font-size: 0.95rem; cursor: pointer;
-    transition: all 0.2s; box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
-}
-.btn-roll:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(79, 70, 229, 0.5); }
-.btn-roll:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
-.turn-message { flex: 1; text-align: center; font-size: 0.95rem; color: #cbd5e1; }
+.pion-red { background: radial-gradient(circle at 30% 30%, #f87171, #dc2626); }
+.pion-green { background: radial-gradient(circle at 30% 30%, #34d399, #059669); }
+.pion-yellow { background: radial-gradient(circle at 30% 30%, #fde047, #ca8a04); }
+.pion-blue { background: radial-gradient(circle at 30% 30%, #60a5fa, #2563eb); }
 
-/* Console d'historique */
-.game-log {
-    margin-top: 16px; background: rgba(15, 23, 42, 0.7); border-radius: 12px; padding: 12px 16px;
-    max-height: 80px; overflow-y: auto; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.05);
-}
-.game-log::-webkit-scrollbar { width: 4px; }
-.game-log::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
-.log-entry { padding: 3px 0; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.03); }
-.log-entry:last-child { border-bottom: none; }
-
-/* Notifications Toast */
-#notification {
-    position: fixed; top: 24px; right: 24px; padding: 14px 22px; background: #0f172a;
-    border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); color: white;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: translateX(140%); transition: transform 0.3s ease; z-index: 1000;
-}
-#notification.show { transform: translateX(0); }
-#notification.error { border-color: #ef4444; color: #fca5a5; }
-#notification.success { border-color: #22c55e; color: #86efac; }
-
-@media (max-width: 600px) {
-    .players-bar { grid-template-columns: repeat(2, 1fr); }
-    .game-controls { flex-direction: column; }
-    .dice-area { width: 100%; justify-content: center; }
-}
-
+/* Animation pion jouable */
 .pion.movable {
     cursor: pointer;
-    animation: pulse 1s infinite alternate;
-    box-shadow: 0 0 10px #fff;
-}
-
-.pion.movable {
-    cursor: pointer;
-    animation: pulse 1s infinite alternate;
-    box-shadow: 0 0 10px #fff;
+    animation: pulse 0.8s infinite alternate;
+    box-shadow: 0 0 12px #ffffff;
 }
 
 @keyframes pulse {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.15); }
+    0% { transform: scale(0.9); }
+    100% { transform: scale(1.2); }
+}
+
+/* Zone des contrôles */
+.controls-zone {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.dice-box {
+    font-size: 2.2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1e293b;
+    border-radius: 8px;
+    border: 1px solid #334155;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    background-color: #6366f1;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn:disabled {
+    background-color: #475569;
+    cursor: not-allowed;
+}
+
+/* Logs */
+#gameLog {
+    width: 480px;
+    height: 80px;
+    background-color: #1e293b;
+    border-radius: 6px;
+    padding: 8px;
+    overflow-y: auto;
+    font-size: 0.85rem;
 }

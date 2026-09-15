@@ -25,6 +25,13 @@ let isAnimating = false;
 
 const COLOR_NAMES = ['red', 'green', 'yellow', 'blue'];
 
+const YARD_SLOTS = [
+    [[1, 1], [1, 4], [4, 1], [4, 4]],
+    [[1, 10], [1, 13], [4, 10], [4, 13]],
+    [[10, 10], [10, 13], [13, 10], [13, 13]],
+    [[10, 1], [10, 4], [13, 1], [13, 4]]
+];
+
 function buildRing() {
     const p = [];
     for (let c = 0; c <= 5; c++) p.push([6, c]);
@@ -51,13 +58,6 @@ const HOME_COLUMN = [
     [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7], [6, 7]],
     [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9], [7, 8]],
     [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7], [8, 7]]
-];
-
-const YARD_SLOTS = [
-    [[1, 1], [1, 4], [4, 1], [4, 4]],
-    [[1, 10], [1, 13], [4, 10], [4, 13]],
-    [[10, 10], [10, 13], [13, 10], [13, 13]],
-    [[10, 1], [10, 4], [13, 1], [13, 4]]
 ];
 
 const STEPS_TO_HOME_ENTRY = 51;
@@ -159,16 +159,14 @@ board.addEventListener('click', (e) => {
     socket.emit('movePion', { gameId: currentGameId, pionIndex: pionIdx });
 });
 
-// Orientation du plateau selon le rôle du joueur (pour aligner l'écurie en bas)
 function applyRotation() {
     board.classList.remove('rotate-red', 'rotate-green', 'rotate-yellow', 'rotate-blue');
-    if (currentPlayerId === 0) board.classList.add('rotate-red'); // Rouge en bas
-    else if (currentPlayerId === 1) board.classList.add('rotate-green'); // Vert en bas
+    if (currentPlayerId === 0) board.classList.add('rotate-red');
+    else if (currentPlayerId === 1) board.classList.add('rotate-green');
     else if (currentPlayerId === 2) board.classList.add('rotate-yellow');
     else if (currentPlayerId === 3) board.classList.add('rotate-blue');
 }
 
-// Animation PAS-À-PAS case par case
 async function syncAndAnimate() {
     if (!gameState) return;
 
@@ -190,7 +188,7 @@ async function syncAndAnimate() {
                 currentSteps++;
                 displayedPionSteps[p][j] = currentSteps;
                 updateUI();
-                await new Promise(r => setTimeout(r, 150)); // Délai entre chaque case
+                await new Promise(r => setTimeout(r, 150));
             }
             displayedPionSteps[p][j] = targetSteps;
         }
@@ -374,4 +372,4 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-console.log('🎲 Ludo chargé avec animations pas-à-pas !');
+console.log('🎲 Ludo chargé avec grille corrigée !');

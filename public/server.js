@@ -13,7 +13,54 @@ const games = {};
 let gameCounter = 1;
 
 const COLOR_NAMES = ['red', 'green', 'yellow', 'blue'];
+const STEPS_TO_HOME_ENTRY = 51;
 const STEPS_TOTAL = 57;
+const RING_LENGTH = 52;
+const START_OFFSET = [1, 14, 27, 40];
+
+const YARD_SLOTS = [
+    [[1, 1], [1, 4], [4, 1], [4, 4]],
+    [[1, 10], [1, 13], [4, 10], [4, 13]],
+    [[10, 10], [10, 13], [13, 10], [13, 13]],
+    [[10, 1], [10, 4], [13, 1], [13, 4]]
+];
+
+const HOME_COLUMN = [
+    [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5], [7, 6]],
+    [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7], [6, 7]],
+    [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9], [7, 8]],
+    [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7], [8, 7]]
+];
+
+function buildRing() {
+    const p = [];
+    for (let c = 0; c <= 5; c++) p.push([6, c]);
+    for (let r = 5; r >= 0; r--) p.push([r, 6]);
+    p.push([0, 7]);
+    for (let r = 0; r <= 5; r++) p.push([r, 8]);
+    for (let c = 9; c <= 14; c++) p.push([6, c]);
+    p.push([7, 14]);
+    for (let c = 14; c >= 9; c--) p.push([8, c]);
+    for (let r = 9; r <= 14; r++) p.push([r, 8]);
+    p.push([14, 7]);
+    for (let r = 14; r >= 9; r--) p.push([r, 6]);
+    for (let c = 5; c >= 0; c--) p.push([8, c]);
+    p.push([7, 0]);
+    return p;
+}
+
+const RING = buildRing();
+const STAR_CELLS = START_OFFSET.map(o => RING[(o + 8) % RING_LENGTH]);
+const STAR_SET = new Set(STAR_CELLS.map(([r, c]) => r + ',' + c));
+
+function pionCoord(color, steps, pionIndex) {
+    if (steps === -1) return YARD_SLOTS[color][pionIndex];
+    if (steps === STEPS_TOTAL) return [7, 7];
+    if (steps < STEPS_TO_HOME_ENTRY) {
+        return RING[(START_OFFSET[color] + steps) % RING_LENGTH];
+    }
+    return HOME_COLUMN[color][steps - STEPS_TO_HOME_ENTRY];
+}
 
 function createGameState() {
     return {
@@ -102,6 +149,29 @@ function movePionLogic(game, playerIndex, pionIndex) {
         pion.steps += game.diceValue;
     }
 
+    // Gestion de la capture
+    if (pion.steps >= 0 && pion.steps < STEPS_TO_HOME_ENTRY) {
+        const currentCoord = pionCoord(playerIndex, pion.steps, pionIndex);
+        const isSafeCell = STAR_SET.has(currentCoord[0] + ',' + currentCoord[1]);
+
+        if (!isSafeCell) {
+            game.pions.forEach((otherPlayerPions, otherPlayerIdx) => {
+                if (otherPlayerIdx !== playerIndex) {
+                    otherPlayerPions.forEach((otherPion, otherPionIdx) => {
+                        if (otherPion.steps >= 0 && otherPion.steps < STEPS_TO_HOME_ENTRY) {
+                            const otherCoord = pionCoord(otherPlayerIdx, otherPion.steps, otherPionIdx);
+                            if (currentCoord[0] === otherCoord[0] && currentCoord[1] === otherCoord[1]) {
+                                otherPion.steps = -1;
+                                io.to(game.id).emit('gameLog', `💥 ${game.players[playerIndex].name} a capturé un pion de ${game.players[otherPlayerIdx].name} !`);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    // Rejeu sur un 6
     if (game.diceValue === 6 && pion.steps !== STEPS_TOTAL) {
         game.diceRolled = false;
         game.diceValue = 0;
@@ -169,7 +239,17 @@ io.on('connection', (socket) => {
             setTimeout(() => {
                 nextTurn(game);
                 io.to(gameId).emit('gameState', game);
-            }, 1200);
+            }, 1000);
+        } else if (movable.length === 1) {
+            // DÉPLACEMENT AUTOMATIQUE SI UN SEUL PION JOUABLE
+            const autoPion = movable[0];
+            io.to(gameId).emit('gameLog', `🎲 ${game.players[playerIndex].name} a fait un ${diceValue}. (Coup automatique)`);
+            io.to(gameId).emit('gameState', game);
+
+            setTimeout(() => {
+                movePionLogic(game, autoPion.player, autoPion.pionIndex);
+                io.to(gameId).emit('gameState', game);
+            }, 600);
         } else {
             io.to(gameId).emit('gameLog', `🎲 ${game.players[playerIndex].name} a fait un ${diceValue}.`);
             io.to(gameId).emit('gameState', game);

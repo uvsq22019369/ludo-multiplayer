@@ -242,3 +242,14 @@ body {
     animation: pulse 1s infinite alternate;
     box-shadow: 0 0 10px #fff;
 }
+
+.pion.movable {
+    cursor: pointer;
+    animation: pulse 1s infinite alternate;
+    box-shadow: 0 0 10px #fff;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.15); }
+}

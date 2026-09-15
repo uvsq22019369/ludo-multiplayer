@@ -23,10 +23,6 @@ let isMyTurn = false;
 
 const COLOR_NAMES = ['red', 'green', 'yellow', 'blue'];
 
-// ═══════════════════════════════════════════════════════════════
-// GÉOMÉTRIE DU PLATEAU
-// ═══════════════════════════════════════════════════════════════
-
 function buildRing() {
     const p = [];
     for (let c = 0; c <= 5; c++) p.push([6, c]);
@@ -45,22 +41,22 @@ function buildRing() {
 }
 
 const RING = buildRing();
-const RING_LENGTH = RING.length; // 52
+const RING_LENGTH = RING.length;
 
 const START_OFFSET = [1, 14, 27, 40];
 
 const HOME_COLUMN = [
-    [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5], [7, 6]],     // Rouge
-    [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7], [6, 7]],     // Vert
-    [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9], [7, 8]], // Jaune
-    [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7], [8, 7]]  // Bleu
+    [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5], [7, 6]],
+    [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7], [6, 7]],
+    [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9], [7, 8]],
+    [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7], [8, 7]]
 ];
 
 const YARD_SLOTS = [
-    [[1, 1], [1, 4], [4, 1], [4, 4]],       // Rouge
-    [[1, 10], [1, 13], [4, 10], [4, 13]],   // Vert
-    [[10, 10], [10, 13], [13, 10], [13, 13]], // Jaune
-    [[10, 1], [10, 4], [13, 1], [13, 4]]     // Bleu
+    [[1, 1], [1, 4], [4, 1], [4, 4]],
+    [[1, 10], [1, 13], [4, 10], [4, 13]],
+    [[10, 10], [10, 13], [13, 10], [13, 13]],
+    [[10, 1], [10, 4], [13, 1], [13, 4]]
 ];
 
 const STEPS_TO_HOME_ENTRY = 51;
@@ -83,10 +79,6 @@ const START_SET = new Set(START_CELLS.map(([r, c]) => r + ',' + c));
 const STAR_SET = new Set(STAR_CELLS.map(([r, c]) => r + ',' + c));
 const START_COLOR_BY_KEY = {};
 START_CELLS.forEach(([r, c], i) => { START_COLOR_BY_KEY[r + ',' + c] = COLOR_NAMES[i]; });
-
-// ═══════════════════════════════════════════════════════════════
-// SOCKET EVENTS
-// ═══════════════════════════════════════════════════════════════
 
 socket.on('gameCreated', (data) => {
     currentGameId = data.gameId;
@@ -130,10 +122,6 @@ socket.on('error', (msg) => {
     addLog('❌ ' + msg);
 });
 
-// ═══════════════════════════════════════════════════════════════
-// ACTIONS UTILISATEUR (CORRIGÉES)
-// ═══════════════════════════════════════════════════════════════
-
 createBtn.addEventListener('click', () => {
     const name = playerNameInput.value.trim() || 'Joueur 1';
     socket.emit('createGame', {
@@ -160,7 +148,6 @@ rollBtn.addEventListener('click', () => {
     rollBtn.disabled = true;
 });
 
-// GESTION CORRIGÉE DES CLICS SUR LES PIONS
 board.addEventListener('click', (e) => {
     const pionEl = e.target.closest('.pion');
     if (!pionEl) return;
@@ -173,10 +160,6 @@ board.addEventListener('click', (e) => {
 
     socket.emit('movePion', { gameId: currentGameId, pionIndex: pionIdx });
 });
-
-// ═══════════════════════════════════════════════════════════════
-// RENDU DU PLATEAU (CORRIGÉ)
-// ═══════════════════════════════════════════════════════════════
 
 function updateUI() {
     if (!gameState) return;
@@ -193,17 +176,22 @@ function updatePlayers() {
         if (!p) return;
         tag.querySelector('.pname').textContent = p.name;
         const status = tag.querySelector('.pstatus');
+
         if (p.finished) {
             status.textContent = '🏆';
             tag.classList.add('finished');
         } else if (gameState.currentTurn === i) {
-            status.textContent = '🎯';
+            if (gameState.diceValue > 0) {
+                const symbols = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+                status.textContent = symbols[gameState.diceValue - 1] || '🎲';
+            } else {
+                status.textContent = '🎯';
+            }
             tag.classList.add('active');
         } else {
             status.textContent = p.isIA ? '🤖' : '⏳';
             tag.classList.remove('active');
         }
-        if (gameState.currentTurn !== i) tag.classList.remove('active');
     });
 }
 
@@ -217,39 +205,28 @@ function renderBoard() {
             cell.className = 'cell';
             const key = row + ',' + col;
 
-            // 1. MAISONS (Yard 6x6)
-            if (row < 6 && col < 6) {
-                cell.classList.add('home-red');
-            } else if (row < 6 && col > 8) {
-                cell.classList.add('home-green');
-            } else if (row > 8 && col > 8) {
-                cell.classList.add('home-yellow');
-            } else if (row > 8 && col < 6) {
-                cell.classList.add('home-blue');
-            }
+            if (row < 6 && col < 6) cell.classList.add('home-red');
+            else if (row < 6 && col > 8) cell.classList.add('home-green');
+            else if (row > 8 && col > 8) cell.classList.add('home-yellow');
+            else if (row > 8 && col < 6) cell.classList.add('home-blue');
 
-            // 2. CENTRE DU PLATEAU (Arrivée 3x3)
             if (row === 7 && col === 7) cell.classList.add('center-mid');
-            else if (row === 6 && col === 7) cell.classList.add('center-top');    // Vert
-            else if (row === 8 && col === 7) cell.classList.add('center-bottom'); // Bleu
-            else if (row === 7 && col === 6) cell.classList.add('center-left');   // Rouge
-            else if (row === 7 && col === 8) cell.classList.add('center-right');  // Jaune
+            else if (row === 6 && col === 7) cell.classList.add('center-top');
+            else if (row === 8 && col === 7) cell.classList.add('center-bottom');
+            else if (row === 7 && col === 6) cell.classList.add('center-left');
+            else if (row === 7 && col === 8) cell.classList.add('center-right');
 
-            // 3. CIRCUIT D'AVANCEMENT
             if (RING_SET.has(key)) cell.classList.add('path');
 
-            // 4. COLONNES FINALES
             for (let c = 0; c < 4; c++) {
                 if (STRETCH_SET[c].has(key)) cell.classList.add('stretch-' + COLOR_NAMES[c]);
             }
 
-            // 5. CASES DE DÉPART (Spawn)
             if (START_SET.has(key)) {
                 cell.classList.add('start');
                 cell.classList.add('start-' + START_COLOR_BY_KEY[key]);
             }
 
-            // 6. CASES SÉCURITÉ / ÉTOILES
             if (STAR_SET.has(key) || START_SET.has(key)) cell.classList.add('safe');
 
             cellByKey[key] = cell;
@@ -257,10 +234,10 @@ function renderBoard() {
         }
     }
 
-    // Placement des pions
     for (let p = 0; p < 4; p++) {
         const pions = gameState.pions[p];
         if (!pions) continue;
+
         for (let j = 0; j < pions.length; j++) {
             const steps = pions[j].steps;
             const [row, col] = pionCoord(p, steps, j);
@@ -270,13 +247,8 @@ function renderBoard() {
 
             const pionDiv = document.createElement('div');
             pionDiv.className = `pion pion-${COLOR_NAMES[p]}`;
-            const alreadyThere = cellEl.querySelectorAll('.pion').length;
-            if (alreadyThere > 0) {
-                pionDiv.classList.add('multiple');
-                cellEl.querySelectorAll('.pion').forEach(el => el.classList.add('multiple'));
-            }
+            pionDiv.style.transition = 'all 0.25s ease-in-out';
 
-            // Rendre le pion cliquable s'il peut être joué
             if (p === currentPlayerId && steps !== STEPS_TOTAL) {
                 const movable = (gameState.movablePions || []).some(
                     m => m.player === p && m.pionIndex === j
@@ -354,7 +326,6 @@ function showNotif(msg, type = 'info') {
     notif._timeout = setTimeout(() => notif.classList.remove('show'), 4000);
 }
 
-// Raccourcis clavier
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && setupScreen.classList.contains('active')) {
         if (document.activeElement === gameIdInput) joinBtn.click();
@@ -366,4 +337,4 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-console.log('🎲 Ludo chargé avec plateau aligné !');
+console.log('🎲 Ludo chargé !');

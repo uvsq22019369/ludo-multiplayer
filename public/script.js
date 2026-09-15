@@ -20,6 +20,8 @@ let currentGameId = null;
 let currentPlayerId = null;
 let gameState = null;
 let isMyTurn = false;
+let displayedPionSteps = [[-1,-1,-1,-1], [-1,-1,-1,-1], [-1,-1,-1,-1], [-1,-1,-1,-1]];
+let isAnimating = false;
 
 const COLOR_NAMES = ['red', 'green', 'yellow', 'blue'];
 
@@ -42,7 +44,6 @@ function buildRing() {
 
 const RING = buildRing();
 const RING_LENGTH = RING.length;
-
 const START_OFFSET = [1, 14, 27, 40];
 
 const HOME_COLUMN = [
@@ -87,6 +88,7 @@ socket.on('gameCreated', (data) => {
     setupScreen.classList.remove('active');
     gameScreen.classList.add('active');
     gameIdDisplay.textContent = currentGameId;
+    applyRotation();
     updateUI();
     addLog('✅ Partie créée ! En attente d\'un second joueur...');
     showNotif('Partie #' + currentGameId + ' créée !', 'success');
@@ -98,6 +100,7 @@ socket.on('gameJoined', (data) => {
     setupScreen.classList.remove('active');
     gameScreen.classList.add('active');
     gameIdDisplay.textContent = currentGameId;
+    applyRotation();
     updateUI();
     addLog('✅ Vous avez rejoint la partie !');
     showNotif('Rejoint !', 'success');
@@ -110,17 +113,11 @@ socket.on('gameStarted', (data) => {
 
 socket.on('gameState', (state) => {
     gameState = state;
-    updateUI();
+    syncAndAnimate();
 });
 
-socket.on('gameLog', (msg) => {
-    addLog(msg);
-});
-
-socket.on('error', (msg) => {
-    showNotif(msg, 'error');
-    addLog('❌ ' + msg);
-});
+socket.on('gameLog', (msg) => { addLog(msg); });
+socket.on('error', (msg) => { showNotif(msg, 'error'); addLog('❌ ' + msg); });
 
 createBtn.addEventListener('click', () => {
     const name = playerNameInput.value.trim() || 'Joueur 1';
@@ -149,6 +146,7 @@ rollBtn.addEventListener('click', () => {
 });
 
 board.addEventListener('click', (e) => {
+    if (isAnimating) return;
     const pionEl = e.target.closest('.pion');
     if (!pionEl) return;
 
@@ -160,6 +158,46 @@ board.addEventListener('click', (e) => {
 
     socket.emit('movePion', { gameId: currentGameId, pionIndex: pionIdx });
 });
+
+// Orientation du plateau selon le rôle du joueur (pour aligner l'écurie en bas)
+function applyRotation() {
+    board.classList.remove('rotate-red', 'rotate-green', 'rotate-yellow', 'rotate-blue');
+    if (currentPlayerId === 0) board.classList.add('rotate-red'); // Rouge en bas
+    else if (currentPlayerId === 1) board.classList.add('rotate-green'); // Vert en bas
+    else if (currentPlayerId === 2) board.classList.add('rotate-yellow');
+    else if (currentPlayerId === 3) board.classList.add('rotate-blue');
+}
+
+// Animation PAS-À-PAS case par case
+async function syncAndAnimate() {
+    if (!gameState) return;
+
+    isAnimating = true;
+    for (let p = 0; p < 4; p++) {
+        if (!gameState.pions[p]) continue;
+        for (let j = 0; j < 4; j++) {
+            const targetSteps = gameState.pions[p][j].steps;
+            let currentSteps = displayedPionSteps[p][j];
+
+            if (currentSteps === -1 && targetSteps > -1) {
+                displayedPionSteps[p][j] = 0;
+                updateUI();
+                await new Promise(r => setTimeout(r, 150));
+                currentSteps = 0;
+            }
+
+            while (currentSteps < targetSteps) {
+                currentSteps++;
+                displayedPionSteps[p][j] = currentSteps;
+                updateUI();
+                await new Promise(r => setTimeout(r, 150)); // Délai entre chaque case
+            }
+            displayedPionSteps[p][j] = targetSteps;
+        }
+    }
+    isAnimating = false;
+    updateUI();
+}
 
 function updateUI() {
     if (!gameState) return;
@@ -239,7 +277,7 @@ function renderBoard() {
         if (!pions) continue;
 
         for (let j = 0; j < pions.length; j++) {
-            const steps = pions[j].steps;
+            const steps = displayedPionSteps[p][j];
             const [row, col] = pionCoord(p, steps, j);
             const key = row + ',' + col;
             const cellEl = cellByKey[key];
@@ -247,9 +285,8 @@ function renderBoard() {
 
             const pionDiv = document.createElement('div');
             pionDiv.className = `pion pion-${COLOR_NAMES[p]}`;
-            pionDiv.style.transition = 'all 0.25s ease-in-out';
 
-            if (p === currentPlayerId && steps !== STEPS_TOTAL) {
+            if (p === currentPlayerId && steps !== STEPS_TOTAL && !isAnimating) {
                 const movable = (gameState.movablePions || []).some(
                     m => m.player === p && m.pionIndex === j
                 );
@@ -299,7 +336,7 @@ function updateTurn() {
         turnMsg.innerHTML = gameState.diceRolled
             ? `🎯 <strong>Choisissez un pion à déplacer</strong>`
             : `🎯 <strong>C'est à vous !</strong>`;
-        rollBtn.disabled = gameState.diceRolled;
+        rollBtn.disabled = gameState.diceRolled || isAnimating;
     } else {
         turnMsg.innerHTML = `⏳ ${cp.name} joue...`;
         rollBtn.disabled = true;
@@ -337,4 +374,4 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-console.log('🎲 Ludo chargé !');
+console.log('🎲 Ludo chargé avec animations pas-à-pas !');

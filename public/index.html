@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ludo Multijoueur</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ÉCRAN DE CONFIGURATION -->
+<div id="setupScreen" class="screen active">
+    <div class="setup-container">
+        <h1>🎲 LUDO</h1>
+        <p class="subtitle">Multijoueur avec IA — 2 joueurs + 2 IA</p>
+
+        <div class="setup-box">
+            <div class="form-group">
+                <label for="playerName">Votre pseudo</label>
+                <input type="text" id="playerName" placeholder="Joueur 1" maxlength="20">
+            </div>
+
+            <div class="form-group">
+                <label for="iaLevel1">Niveau de l'IA 1</label>
+                <select id="iaLevel1">
+                    <option value="1">Facile (aléatoire)</option>
+                    <option value="2">Moyen (stratégique)</option>
+                    <option value="3">Difficile (avancée)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="iaLevel2">Niveau de l'IA 2</label>
+                <select id="iaLevel2">
+                    <option value="1">Facile (aléatoire)</option>
+                    <option value="2" selected>Moyen (stratégique)</option>
+                    <option value="3">Difficile (avancée)</option>
+                </select>
+            </div>
+
+            <button id="createGameBtn" class="btn-primary">Créer la partie</button>
+
+            <div class="divider">— ou —</div>
+
+            <div class="join-section">
+                <input type="text" id="gameIdInput" placeholder="ID de partie">
+                <button id="joinGameBtn" class="btn-secondary">Rejoindre</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ÉCRAN DE JEU -->
+<div id="gameScreen" class="screen">
+    <div class="game-container">
+        <div class="game-header">
+            <h1>🎲 LUDO</h1>
+            <div class="game-id">Partie #<span id="gameIdDisplay">-</span></div>
+        </div>
+
+        <div class="players-bar">
+            <div class="player-tag" data-color="red">
+                <div class="color-dot" style="background:#e74c3c"></div>
+                <span class="pname">Joueur 1</span>
+                <span class="pstatus">⏳</span>
+            </div>
+            <div class="player-tag" data-color="green">
+                <div class="color-dot" style="background:#2ecc71"></div>
+                <span class="pname">Joueur 2</span>
+                <span class="pstatus">⏳</span>
+            </div>
+            <div class="player-tag" data-color="yellow">
+                <div class="color-dot" style="background:#f1c40f"></div>
+                <span class="pname">IA 1</span>
+                <span class="pstatus">🤖</span>
+            </div>
+            <div class="player-tag" data-color="blue">
+                <div class="color-dot" style="background:#3498db"></div>
+                <span class="pname">IA 2</span>
+                <span class="pstatus">🤖</span>
+            </div>
+        </div>
+
+        <div class="board-wrapper">
+            <div id="board" class="board"></div>
+        </div>
+
+        <div class="game-controls">
+            <div class="dice-area">
+                <div id="dice" class="dice">🎲</div>
+                <button id="rollDiceBtn" class="btn-roll">Lancer</button>
+            </div>
+            <div id="turnMessage" class="turn-message">En attente...</div>
+        </div>
+
+        <div id="gameLog" class="game-log"></div>
+    </div>
+</div>
+
+<div id="notification"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

@@ -12,26 +12,134 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    padding: 20px;
 }
 
+/* --- ECRANS --- */
 .screen {
     display: none;
     flex-direction: column;
     align-items: center;
     gap: 15px;
+    width: 100%;
+    max-width: 500px;
 }
 
 .screen.active {
     display: flex;
 }
 
-/* Plateau en grille 15x15 */
+/* --- ECRAN D'ACCUEIL --- */
+#setupScreen {
+    background: #1e293b;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+}
+
+#setupScreen h1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+#setupScreen p {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    gap: 5px;
+    margin-bottom: 12px;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    color: #cbd5e1;
+}
+
+#setupScreen input,
+#setupScreen select {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #334155;
+    background-color: #0f172a;
+    color: #f8fafc;
+    font-size: 0.9rem;
+    outline: none;
+    width: 100%;
+}
+
+#setupScreen input:focus,
+#setupScreen select:focus {
+    border-color: #6366f1;
+}
+
+.divider {
+    margin: 15px 0;
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.join-row {
+    display: flex;
+    gap: 8px;
+}
+
+/* --- ENTETE ET INFORMATIONS JOUEURS --- */
+.game-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1e293b;
+    padding: 10px 15px;
+    border-radius: 8px;
+}
+
+.players-list {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    justify-content: space-around;
+    background: #1e293b;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.player-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: #0f172a;
+    font-size: 0.85rem;
+    border: 2px solid transparent;
+}
+
+.player-tag.active {
+    border-color: #6366f1;
+    background: #1e1b4b;
+}
+
+/* --- PLATEAU DE JEU --- */
 #board {
     display: grid;
     grid-template-columns: repeat(15, 1fr);
     grid-template-rows: repeat(15, 1fr);
-    width: 480px;
-    height: 480px;
+    width: 450px;
+    height: 450px;
     background-color: #ffffff;
     border: 4px solid #1e293b;
     border-radius: 8px;
@@ -40,13 +148,12 @@ body {
     transition: transform 0.5s ease-in-out;
 }
 
-/* Rotations du plateau selon le joueur */
+/* Rotations du plateau */
 #board.rotate-red { transform: rotate(0deg); }
 #board.rotate-green { transform: rotate(-90deg); }
 #board.rotate-yellow { transform: rotate(180deg); }
 #board.rotate-blue { transform: rotate(90deg); }
 
-/* Inversion sur les pions pour qu'ils restent droits */
 #board.rotate-green .pion { transform: rotate(90deg); }
 #board.rotate-yellow .pion { transform: rotate(-180deg); }
 #board.rotate-blue .pion { transform: rotate(-90deg); }
@@ -59,26 +166,32 @@ body {
     justify-content: center;
 }
 
-/* Écuries */
+/* Écuries (Coins) */
 .cell.home-red { background-color: #ef4444; border: none; }
 .cell.home-green { background-color: #10b981; border: none; }
 .cell.home-yellow { background-color: #eab308; border: none; }
 .cell.home-blue { background-color: #3b82f6; border: none; }
 
-/* Chemins d'arrivée */
+/* Chemins de couleur */
 .cell.stretch-red { background-color: #fca5a5; }
 .cell.stretch-green { background-color: #6ee7b7; }
 .cell.stretch-yellow { background-color: #fde047; }
 .cell.stretch-blue { background-color: #93c5fd; }
 
-/* Centre */
+/* Cases Départ & Sécurité */
+.cell.start-red { background-color: #ef4444; }
+.cell.start-green { background-color: #10b981; }
+.cell.start-yellow { background-color: #eab308; }
+.cell.start-blue { background-color: #3b82f6; }
+
+/* Centre triangulaire / tri-couleur */
 .cell.center-mid { background-color: #334155; }
 .cell.center-top { background-color: #10b981; }
 .cell.center-bottom { background-color: #3b82f6; }
 .cell.center-left { background-color: #ef4444; }
 .cell.center-right { background-color: #eab308; }
 
-/* Pions */
+/* --- PIONS --- */
 .pion {
     width: 75%;
     height: 75%;
@@ -94,7 +207,6 @@ body {
 .pion-yellow { background: radial-gradient(circle at 30% 30%, #fde047, #ca8a04); }
 .pion-blue { background: radial-gradient(circle at 30% 30%, #60a5fa, #2563eb); }
 
-/* Animation pion jouable */
 .pion.movable {
     cursor: pointer;
     animation: pulse 0.8s infinite alternate;
@@ -103,14 +215,17 @@ body {
 
 @keyframes pulse {
     0% { transform: scale(0.9); }
-    100% { transform: scale(1.2); }
+    100% { transform: scale(1.25); }
 }
 
-/* Zone des contrôles */
+/* --- DE ET COMMANDES --- */
 .controls-zone {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 15px;
+    width: 100%;
+    margin-top: 10px;
 }
 
 .dice-box {
@@ -123,30 +238,78 @@ body {
     background: #1e293b;
     border-radius: 8px;
     border: 1px solid #334155;
+    color: #ffffff;
 }
 
 .btn {
-    padding: 10px 20px;
+    padding: 10px 24px;
     border: none;
     border-radius: 6px;
     background-color: #6366f1;
     color: white;
     font-weight: bold;
+    font-size: 0.95rem;
     cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn:hover:not(:disabled) {
+    background-color: #4f46e5;
 }
 
 .btn:disabled {
     background-color: #475569;
+    color: #94a3b8;
     cursor: not-allowed;
 }
 
-/* Logs */
+/* --- MESSAGE DE TOUR & LOGS --- */
+#turnMessage {
+    font-size: 0.95rem;
+    color: #cbd5e1;
+    text-align: center;
+}
+
 #gameLog {
-    width: 480px;
+    width: 100%;
     height: 80px;
     background-color: #1e293b;
     border-radius: 6px;
-    padding: 8px;
+    padding: 8px 12px;
     overflow-y: auto;
     font-size: 0.85rem;
+    color: #94a3b8;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
+
+.log-entry {
+    line-height: 1.3;
+}
+
+/* --- NOTIFICATIONS --- */
+#notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 6px;
+    background: #1e293b;
+    color: #fff;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+}
+
+#notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#notification.success { border-left: 4px solid #10b981; }
+#notification.error { border-left: 4px solid #ef4444; }
